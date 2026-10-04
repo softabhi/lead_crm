@@ -33,3 +33,5 @@ Then run:
 php artisan migrate
 
 If Sanctum is already included in the repository and the required migration has already been created, you do not need to install it again.
+
+Note: By default if any user submit enquiry ,then show admin create lead because that user not register in user table , It will update as requirment.
