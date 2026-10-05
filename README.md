@@ -1,4 +1,5 @@
-For laravel backend setup follow below given step.
+FOR LARAVEL BACKEDN SETUP FOLLOW BELOW GIVEN STEP.
+
 composer install
 php artisan key:generate.
 
@@ -34,4 +35,12 @@ php artisan migrate
 
 If Sanctum is already included in the repository and the required migration has already been created, you do not need to install it again.
 
-Note: By default if any user submit enquiry ,then show admin create lead because that user not register in user table , It will update as requirment.
+Note: By default if any user submit enquiry ,that show admin create lead because that user not register in user table , It will update as requirment.
+
+FRONTED PART SETUP IN LOCAL MACHINE
+ 1  Clone project from gitub.
+ 2. Go fronted directory.
+ 3. run - npm install
+ 4. run - npm run dev project will be start
+
+ 
