@@ -10,38 +10,78 @@ import { PublicEnquiryForm } from './components/PublicEnquiryForm';
 
 const MainApp = () => {
   const { user } = useAuth();
-  const [activeTab, setActiveTab] = useState('dashboard');
   
-  // URL Path Routing: '/' = Public Enquiry Form, '/admin' = Admin/Staff CRM Portal
-  const [isAdminRoute, setIsAdminRoute] = useState(() => {
-    return window.location.pathname.startsWith('/admin');
+  // Current pathname tracking
+  const [currentPath, setCurrentPath] = useState(() => window.location.pathname);
+  const [activeTab, setActiveTab] = useState(() => {
+    const path = window.location.pathname.replace('/', '');
+    if (path === 'leads') return 'leads';
+    if (path === 'users') return 'users';
+    return 'dashboard';
   });
 
+  // Sync URL changes and popstate (back/forward browser buttons)
   useEffect(() => {
     const handlePopState = () => {
-      setIsAdminRoute(window.location.pathname.startsWith('/admin'));
+      const path = window.location.pathname;
+      setCurrentPath(path);
+      const tab = path.replace('/', '');
+      if (['dashboard', 'leads', 'users'].includes(tab)) {
+        setActiveTab(tab);
+      }
     };
 
     window.addEventListener('popstate', handlePopState);
     return () => window.removeEventListener('popstate', handlePopState);
   }, []);
 
+  // Update URL when user logs in or switches tabs
+  useEffect(() => {
+    if (!user) {
+      if (currentPath === '/login' || currentPath === '/admin' || currentPath === '/dashboard') {
+        if (window.location.pathname !== '/login') {
+          window.history.replaceState({}, '', '/login');
+          setCurrentPath('/login');
+        }
+      }
+    } else {
+      if (currentPath === '/login' || currentPath === '/admin' || currentPath === '/' || currentPath === '') {
+        const targetPath = `/${activeTab}`;
+        window.history.replaceState({}, '', targetPath);
+        setCurrentPath(targetPath);
+      }
+    }
+  }, [user, activeTab, currentPath]);
+
+  const changeTab = (tab) => {
+    setActiveTab(tab);
+    const targetPath = `/${tab}`;
+    window.history.pushState({}, '', targetPath);
+    setCurrentPath(targetPath);
+  };
+
   const goToAdminPortal = () => {
-    window.history.pushState({}, '', '/admin');
-    setIsAdminRoute(true);
+    if (user) {
+      const targetPath = `/${activeTab}`;
+      window.history.pushState({}, '', targetPath);
+      setCurrentPath(targetPath);
+    } else {
+      window.history.pushState({}, '', '/login');
+      setCurrentPath('/login');
+    }
   };
 
   const goToPublicEnquiry = () => {
     window.history.pushState({}, '', '/');
-    setIsAdminRoute(false);
+    setCurrentPath('/');
   };
 
-  // If user is on main index route ('/'), render Public Lead Enquiry Form
-  if (!isAdminRoute) {
+  // 1. Public Website Enquiry Form at '/'
+  if (currentPath === '/' || currentPath === '') {
     return <PublicEnquiryForm onGoToAdmin={goToAdminPortal} />;
   }
 
-  // If user is on '/admin' route and not logged in, render Admin/Staff Login
+  // 2. Login Page at '/login' (when not authenticated)
   if (!user) {
     return (
       <div className="min-vh-100 bg-light d-flex flex-column">
@@ -58,9 +98,9 @@ const MainApp = () => {
     );
   }
 
-  // Logged-in Admin / Sales Representative Dashboard Workspace
+  // 3. Authenticated CRM Panel at '/dashboard', '/leads', '/users'
   return (
-    <Layout activeTab={activeTab} setActiveTab={setActiveTab}>
+    <Layout activeTab={activeTab} setActiveTab={changeTab}>
       {activeTab === 'dashboard' && <Dashboard />}
       {activeTab === 'leads' && <LeadList />}
       {activeTab === 'users' && <UserManagement />}

@@ -247,7 +247,8 @@ export const LeadList = () => {
               <table className="table table-hover align-middle mb-0">
                 <thead className="table-light text-uppercase small text-muted">
                   <tr>
-                    <th className="ps-4">Lead Name</th>
+                    <th className="ps-4">Lead ID</th>
+                    <th>Lead Name</th>
                     <th>Phone</th>
                     <th>Email</th>
                     <th>Source</th>
@@ -261,6 +262,11 @@ export const LeadList = () => {
                   {leads.map((lead) => (
                     <tr key={lead.id}>
                       <td className="ps-4">
+                        <span className="badge bg-secondary bg-opacity-10 text-dark border border-secondary border-opacity-25 font-monospace fw-bold px-2 py-1">
+                          #{lead.id}
+                        </span>
+                      </td>
+                      <td>
                         <span
                           className="fw-bold text-dark text-decoration-none cursor-pointer hover-primary"
                           style={{ cursor: 'pointer' }}
